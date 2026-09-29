@@ -1,0 +1,21 @@
+# Результаты сборки
+*.o
+*.out
+a.out
+
+# TeX промежуточные
+*.aux
+*.log
+*.toc
+*.out
+
+# Бинарники и PDF (по именам из Output:)
+hello
+app
+final
+broken
+nooutput
+
+# Редакторы
+.vscode/
+*.swp
