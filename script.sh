@@ -12,13 +12,14 @@ case "$SRC" in
     *)     err "неподдерживаемый тип файла: $SRC"; exit 2 ;;
 esac
 command -v "$TOOL" >/dev/null 2>&1 || { err "не найдена утилита: $TOOL"; exit 5; }
+SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 SRC_ABS=$(cd "$(dirname "$SRC")" && pwd)/$(basename "$SRC")
 TMPDIR=
 cleanup() {
     [ -n "$TMPDIR" ] && [ -d "$TMPDIR" ] && rm -rf "$TMPDIR"
 }
 trap cleanup EXIT INT TERM HUP
-TMPDIR=$(mktemp -d) || { err "не удалось создать вресменный каталог"; exit 6; }
+TMPDIR=$(mktemp -d) || { err "не удалось создать временный каталог"; exit 6; }
 case "$SRC" in
     *.tex)
         OUTPUT_NAME=$(
@@ -39,7 +40,7 @@ case "$SRC" in
         mv "$TMPDIR/$SRC_BASE.pdf" "$TMPDIR/$OUTPUT_NAME"
         ;;
     *.c|*.cpp)
-         OUTPUT_NAME=$(
+        OUTPUT_NAME=$(
             sed -n 's|^[[:space:]]*//[[:space:]]*Output:[[:space:]]*\([^[:space:]]*\)|\1|p' "$SRC" \
                 | head -n 1
         )
@@ -63,11 +64,10 @@ case "$SRC" in
         fi
         ;;
 esac
-SRC_DIR=$(dirname "$SRC_ABS")
-cp "$TMPDIR/$OUTPUT_NAME" "$SRC_DIR/$OUTPUT_NAME" || { err "не удалось скопировать результат"; exit 9; }
+cp "$TMPDIR/$OUTPUT_NAME" "$SCRIPT_DIR/$OUTPUT_NAME" || { err "не удалось скопировать результат"; exit 9; }
 case "$SRC" in
     *.tex) : ;;
-    *) chmod +x "$SRC_DIR/$OUTPUT_NAME" 2>/dev/null || true ;;
+    *) chmod +x "$SCRIPT_DIR/$OUTPUT_NAME" 2>/dev/null || true ;;
 esac
-echo "готово: $SRC_DIR/$OUTPUT_NAME"
+echo "готово: $SCRIPT_DIR/$OUTPUT_NAME"
 exit 0
